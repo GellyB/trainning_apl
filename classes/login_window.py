@@ -46,10 +46,12 @@ class _curs_tab():
 
         if res:
 
-            login = res[0]
             email = res[1]
 
-            user_window = _kurs_stack(self.ui_user, self.windows_user, self.win, login, email)
+            user_window = _kurs_stack(self.ui_user, self.windows_user, self.win, nick, email, self.windows)
+
+            self.ui.nick_auth.clear()
+            self.ui.pass_auth.clear()
 
             self.windows.hide()
 
@@ -60,12 +62,16 @@ class _curs_tab():
         email = self.ui.pass_auth_3.text()
 
         res = reg_stud(nick, pas, email)
+        print(res)
 
         if res:
 
-            login = res[0]
-            email = res[1]
-            twently = _kurs_stack(self.ui_user, self.windows_user, self.win, login, email)
+
+            twently = _kurs_stack(self.ui_user, self.windows_user, self.win, nick, email, self.windows)
+
+            self.ui.nick_auth.clear()
+            self.ui.pass_auth.clear()
+            self.ui.pass_auth_3.clear()
 
             self.windows.hide()
 
@@ -87,7 +93,15 @@ class _curs_tab():
             l_n_ui = l_name
             date = date_f_birth
 
-            thrid = _manag_stack(self.ui_manager, self.windows_manager, self.win, n_ui, l_n_ui, date)
+            thrid = _manag_stack(self.ui_manager, self.windows_manager, self.win, n_ui, l_n_ui,
+                                 date, self.windows)
+
+            self.ui.nick_auth_3.clear()
+            self.ui.pass_auth_4.clear()
+            self.ui.pass_auth_8.clear()
+            self.ui.pass_auth_9.clear()
+            self.ui.pass_auth_10.clear()
+            self.ui.pass_auth_7.clear()
 
             self.windows.hide()
 
@@ -106,6 +120,10 @@ class _curs_tab():
             l_n_ui = last_name
             date = str(get_date(password_2))
 
-            thrid = _manag_stack(self.ui_manager, self.windows_manager, self.win, n_ui, l_n_ui, date)
+            thrid = _manag_stack(self.ui_manager, self.windows_manager, self.win, n_ui, l_n_ui, date, self.windows)
+
+            self.ui._auth_maneg.clear()
+            self.ui.pass_auth_6.clear()
+            self.ui.pass_auth_5.clear()
 
             self.windows.hide()

@@ -1,18 +1,44 @@
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QTreeWidgetItem
+from PyQt5 import QtWidgets, uic, QtCore
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QTreeWidgetItem, QTableWidgetItem, QMainWindow, QAction
+from PyQt5.QtGui import QIcon
 import sys
 from classes.post_connect import *
 from general_function.patterns_form_function import patterns_func
 
 class _manag_stack():
-    def __init__(self, ui, windows, win, n_ui, l_n_ui, date):
 
+    def __init__(self, ui, windows, win, n_ui, l_n_ui, date, first_window):
+
+        self.tables = []
         self.ui = ui
+        self.windows = windows
         self.win = win
+
+        self.first_window = first_window
 
         self.ui._name_3.setText(n_ui)
         self.ui._l_name.setText(l_n_ui)
         self.ui._date_f_birth.setText(date)
+
+        self.ui.actionquit.triggered.connect(self._open_first_window)
+        #self.ui.actionat_first_window.triggered.connect(win.close)
+
+        self.tables.append(self.ui._isp9_420ap_table)
+        self.tables.append(self.ui._isp11_320ap_table)
+        self.tables.append(self.ui._isp9_220ap_table)
+        self.tables.append(self.ui._9isp_ap420_table)
+        self.tables.append(self.ui._isp_table)
+
+        self.ui._create_row_isp9_420ap.clicked.connect(lambda pos, tw=self.tables[0]: self._create_new_row(tw, pos))
+
+        self.ui._create_row_isp11_320ap.clicked.connect(lambda pos, tw=self.tables[1]: self._create_new_row(tw, pos))
+
+        self.ui._create_row_isp9_220ap.clicked.connect(lambda pos, tw=self.tables[2]: self._create_new_row(tw, pos))
+
+        self.ui._create_row_9isp_ap420.clicked.connect(lambda pos, tw=self.tables[3]: self._create_new_row(tw, pos))
+
+        self.ui._create_row_isp.clicked.connect(lambda pos, tw=self.tables[4]: self._create_new_row(tw, pos))
 
         self.ui._themes.textActivated.connect(self.on_change_selection)
         self.ui._prac_id.textActivated.connect(self.on_change_practice)
@@ -22,6 +48,15 @@ class _manag_stack():
 
         self.ui._clr.clicked.connect(self.clear_test)
         self.ui._inst.clicked.connect(self.get_insert)
+
+        # Отсюда идёт часть с инициализацией окна паттернов
+
+        self.Form_pattern, self.Windows_pattern = uic.loadUiType("graphic/patterns_from.ui")
+
+        self.windows_pattern = self.Windows_pattern()
+
+        self.ui_pattern = self.Form_pattern()
+        self.ui_pattern.setupUi(self.windows_pattern)
 
         self.items_in_tree()
 
@@ -38,11 +73,92 @@ class _manag_stack():
         self.ui._prac_id.addItems(self.prac_items)
         self.ui._themes.addItems(self.items)
 
-        self.group_functions = groups_tab_functions()
-        self.group_functions.add_isp9_420ap()
+        self.group_functions = groups_functions()
+        self.group_functions.add_isp(1)
 
-        windows.show()
+        self.set_users_list(str('_isp9_420ap_table'), self.group_functions.add_isp(1))
+        self.set_users_list(str('_isp11_320ap_table'), self.group_functions.add_isp(2))
+        self.set_users_list(str('_isp9_220ap_table'), self.group_functions.add_isp(3))
+        self.set_users_list(str('_9isp_ap420_table'), self.group_functions.add_isp(4))
+        self.set_users_list(str('_isp_table'), self.group_functions.add_isp(5))
+
+        self.ui.delete_user.clicked.connect(self.delete_current_row)
+
+        self.ui._fabric_button.clicked.connect(lambda: self.open_patterns_form(0))
+
+        self.windows.show()
         self.win.exec()
+
+    def _open_first_window(self):
+        self.windows.close()
+        self.first_window.show()
+
+    def set_picture(self):
+
+        # Кнопки каталога "Порождающие"
+        self.ui._fabric_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/gen_images/fabric.png'))
+        self.ui._abstract_method.setIcon(QIcon('screens_for_diplom/screens_for_diplom/gen_images/absctract_fabric.png'))
+        self.ui._builder_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/gen_images/builder.png'))
+        self.ui._prototype_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/gen_images/prototipe.png'))
+        self.ui._singlton_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/gen_images/singlton.png'))
+
+        # Кнопки каталога "Структурные"
+        self.ui.adapter_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/struct_images/adapter.png'))
+        self.ui._bridge_buttom.setIcon(QIcon('screens_for_diplom/screens_for_diplom/struct_images/bridge.png'))
+        self.ui._composite_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/struct_images/composite.png'))
+        self.ui._decorator_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/struct_images/decorator.png'))
+        self.ui._facade_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/struct_images/facade.png'))
+        self.ui._flyweight_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/struct_images/flyweight.png'))
+        self.ui._proxy_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/struct_images/proxy.png'))
+
+        # Кнопки каталога "Поведенческие"
+        self.ui._chain_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/chain.png'))
+        self.ui._command_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/command.png'))
+        self.ui._iterator_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/iterator.png'))
+        self.ui._mediator_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/mediator.png'))
+        self.ui._memento_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/memento.png'))
+        self.ui._observer_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/observer.png'))
+        self.ui._state_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/state.png'))
+        self.ui._strategy_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/strategy.png'))
+        self.ui._template_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/template.png'))
+        self.ui._bisitor_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/visitor.png'))
+
+    def open_patterns_form(self, number_page):
+
+        open_pattern_form = patterns_func(number_page, self.ui_pattern, self.windows_pattern, self.win)
+        self.windows.hide()
+
+    def delete_current_row(self):
+
+        for table in self.tables:
+            selected_row = table.currentRow()
+
+            if selected_row != -1:
+
+                user = table.item(selected_row, 0)
+
+                self.group_functions._delete_student(user.text())
+                table.removeRow(selected_row)
+    def set_users_list(self, widget, res):
+
+        widget = getattr(self.ui, widget)
+
+        for array in res:
+
+            row = widget.rowCount()
+            widget.insertRow(row)
+
+            for column, data in enumerate(array):
+
+                if data is None:
+                    item = QTableWidgetItem(str('None'))
+
+                else:
+                    item = QTableWidgetItem(str(data))
+                    widget.setItem(row, column, item)
+
+    def _create_new_row(self, table_widget, pos):
+        table_widget.insertRow(table_widget.rowCount())
 
     def clear(self):
         self.ui._name.clear()
@@ -94,8 +210,7 @@ class _manag_stack():
 
         conc = got_conclusion(text)
         conc = str(conc[0])
-        # conc = "".join(conc)
-        self.ui._conc.append(conc)
+        self.ui._conc.setText(conc)
 
     def on_change_practice(self, text):
         self.ui._name_prac.clear()
@@ -109,26 +224,25 @@ class _manag_stack():
         self.ui._practice.append(_prac)
 
     def items_in_tree(self):
-        # _test = got_tree_tests()
+        #_test = got_tree_tests()
         for i in got_tree_tests():
             item = QTreeWidgetItem(self.ui.treeWidget)
             item.setText(0, i)
 
         _count = _count_id = 0
 
-        id_s = got_tree_id()
 
-        id_for_change = id_s[0]
+        '''tasks = {}
+        for i in range(len(id_s)):
+            for j in got_tree_tasks():
+                tasks[int(id_s)] = j[i]'''
 
-        for sutimes in got_tree_tasks():
 
-            parent_item = self.ui.treeWidget.topLevelItem(_count)
+        for subitmes in got_tree_tasks():
+
+            parent_item = self.ui.treeWidget.topLevelItem(int(get_task_index(subitmes)))
             subitem = QTreeWidgetItem(parent_item)
-            subitem.setText(0, sutimes)
+            subitem.setText(0, subitmes)
 
             # Проблема!!!
             # Число count_id, когда становиться равным двум,
-            if id_s[_count_id] != id_for_change:
-                _count += 1
-            else:
-                _count_id += 1

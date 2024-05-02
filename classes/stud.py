@@ -1,19 +1,25 @@
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QTreeWidgetItem, QApplication, QWidget
+from PyQt5.QtWidgets import QTreeWidgetItem, QApplication, QWidget, QTableWidgetItem
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QMetaObject, Qt
 from classes.post_connect import *
 from general_function.patterns_form_function import patterns_func
 
 class _kurs_stack():
-    def __init__(self, ui, windows, win, login, email):
+    def __init__(self, ui, windows, win, login, email, first_window):
 
+        self.tables = []
         self.ui = ui
         self.win = win
         self.windows = windows
 
+        self.first_window = first_window
+
         self.ui._nic_3.setText(login)
         self.ui._email_3.setText(email)
+
+        self.ui.actionquit.triggered.connect(self._open_first_window)
+        # self.ui.actionat_first_window.triggered.connect(win.close)
 
         self.ui._themes_2.textActivated.connect(self.on_change_selection)
         self.ui.comboBox_2.textActivated.connect(self.on_change_practice)
@@ -22,7 +28,7 @@ class _kurs_stack():
 
         # Отсюда идёт часть с инициализацией окна паттернов
 
-        self.Form_pattern, self.Windows_pattern = uic.loadUiType("graphic/patterns_form.ui")
+        self.Form_pattern, self.Windows_pattern = uic.loadUiType("graphic/patterns_from.ui")
 
         self.windows_pattern = self.Windows_pattern()
 
@@ -42,9 +48,11 @@ class _kurs_stack():
             for j in i:
                 self.prac_items.append((str(j)))
 
-
         self.ui.comboBox_2.addItems(self.prac_items)
         self.ui._themes_2.addItems(self.items)
+
+        self.group_functions = groups_functions()
+        self.group_functions.add_isp(1)
 
         # Здесь кнопки открытия формы паттернов
 
@@ -57,6 +65,10 @@ class _kurs_stack():
 
     # Функция по добавлению картинок на кнопки.
     # Нужна потому, что в Qt designer они постоянно отваливаются
+
+    def _open_first_window(self):
+        self.windows.close()
+        self.first_window.show()
 
     def set_picture(self):
 
@@ -87,7 +99,6 @@ class _kurs_stack():
         self.ui._strategy_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/strategy.png'))
         self.ui._template_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/template.png'))
         self.ui._bisitor_button.setIcon(QIcon('screens_for_diplom/screens_for_diplom/behavior_images/visitor.png'))
-
 
     def open_patterns_form(self, number_page):
 
@@ -125,27 +136,13 @@ class _kurs_stack():
         self.ui.textBrowser_2.append(_prac)
 
     def items_in_tree(self):
-        #_test = got_tree_tests()
         for i in got_tree_tests():
             item = QTreeWidgetItem(self.ui.treeWidget_2)
             item.setText(0, i)
 
         _count = _count_id = 0
 
-        id_s = got_tree_id()
-
-        id_for_change = id_s[0]
-
-        for sutimes in got_tree_tasks():
-
-            parent_item = self.ui.treeWidget_2.topLevelItem(_count)
+        for subitmes in got_tree_tasks():
+            parent_item = self.ui.treeWidget_2.topLevelItem(int(get_task_index(subitmes)))
             subitem = QTreeWidgetItem(parent_item)
-            subitem.setText(0, sutimes)
-
-            # Проблема!!!
-            # Число count_id, когда становиться равным двум,
-            #
-            if id_s[_count_id] != id_for_change:
-                _count+=1
-            else:
-                _count_id+=1
+            subitem.setText(0, subitmes)

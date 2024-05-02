@@ -39,7 +39,12 @@ def reg_stud(nick, password, email):
         # Вставка данных
         cursor.execute("""INSERT INTO public."User" ("ID_user", "Nick", "Email", "Password") VALUES (%s, %s, %s, %s)""",
                        (new_ID_user, nick, email, password))
-        return True
+
+        if result:
+            return result[0]
+
+        else:
+            return False
 
 def got_items():
     with conn.cursor() as cursor:
@@ -87,6 +92,17 @@ def got_tree_id():
         ORDER BY "ID_test" """)
         res_items = cursor.fetchall()
     return res_items
+
+def get_task_index(name):
+
+    with conn.cursor() as cursor:
+        cursor.execute(f"""SELECT "id_test" from public."task"
+                        Where "Task" = '{name}'""")
+
+        res_items = cursor.fetchall()
+
+    res_items = res_items[0]
+    return res_items[0] - 1
 
 def got_tree_tests():
 
@@ -271,15 +287,27 @@ def insert_tasks(_name, _one, _two, _three, _four, _theme):
 
     return True
 
-class groups_tab_functions():
+class groups_functions():
 
-    def add_isp9_420ap(self):
+    def add_isp(self, num):
         with conn.cursor() as cursor:
-            cursor.execute("""SELECT "Nick", "Email", "Password", "Rating", "Progress" 
+            cursor.execute(f"""SELECT "ID_user", "Nick", "Email", "Rating", "Progress" 
                               From public."User" 
                               Join public."groups" ON "User"."group_id" = "groups"."group_id"
-                              where "User"."group_id" = 1""")
+                              where "User"."group_id" = {num}""")
 
             res = cursor.fetchall()
 
         return res
+
+    def _delete_student(self, num):
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                        DELETE FROM public."User"
+                        WHERE "ID_user" = %s
+                    """, (num,))
+
+            cursor.execute("""
+                        DELETE FROM public."Ratings"
+                        WHERE "id_user" = %s
+                    """, (num,))
